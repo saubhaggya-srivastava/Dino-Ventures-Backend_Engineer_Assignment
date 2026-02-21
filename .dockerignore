@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# IDE files
+.vscode
+.idea
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Go specific
+*.test
+*.out
+coverage.txt
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env
+
+# Docker files (not needed in image)
+Dockerfile
+docker-compose.yml
+.dockerignore

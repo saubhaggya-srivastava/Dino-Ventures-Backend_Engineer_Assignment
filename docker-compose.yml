@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: wallet-postgres
+    environment:
+      POSTGRES_DB: wallet_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Viprance1
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d/migrations
+      - ./scripts:/docker-entrypoint-initdb.d/scripts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d wallet_service"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  wallet-service:
+    build: .
+    container_name: wallet-service
+    environment:
+      DATABASE_URL: postgres://postgres:Viprance1@postgres:5432/wallet_service?sslmode=disable
+      SERVER_PORT: 8080
+      MAX_OPEN_CONNS: 25
+      MAX_IDLE_CONNS: 5
+      CONN_MAX_LIFETIME: 5m
+      CONN_MAX_IDLE_TIME: 5m
+      IDEMPOTENCY_TTL: 24h
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
